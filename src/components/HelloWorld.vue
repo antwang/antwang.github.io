@@ -1,116 +1,86 @@
+<!--
+ * @Author: ant
+ * @Date: 2022-05-25 22:40:23
+ * @LastEditTime: 2022-05-30 18:04:38
+ * @LastEditors: ant
+ * @Description: 
+-->
 <template>
   <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      本示例主要展示了 Notification API
-      在主线程中的使用方法，通过配置不同的参数来展示不同参数对通知的展现与功能上的影响。由于
-      Notification API 在不同的浏览器上的支持度不同，因此在部分浏览器可能不支持
-      Notification API，也有可能部分配置失效。
-    </p>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br />
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener"
-        >vue-cli documentation</a
-      >.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li>
-        <a
-          href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel"
-          target="_blank"
-          rel="noopener"
-          >babel</a
-        >
-      </li>
-      <li>
-        <a
-          href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-pwa"
-          target="_blank"
-          rel="noopener"
-          >pwa</a
-        >
-      </li>
-      <li>
-        <a
-          href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint"
-          target="_blank"
-          rel="noopener"
-          >eslint</a
-        >
-      </li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li>
-        <a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a>
-      </li>
-      <li>
-        <a href="https://forum.vuejs.org" target="_blank" rel="noopener"
-          >Forum</a
-        >
-      </li>
-      <li>
-        <a href="https://chat.vuejs.org" target="_blank" rel="noopener"
-          >Community Chat</a
-        >
-      </li>
-      <li>
-        <a href="https://twitter.com/vuejs" target="_blank" rel="noopener"
-          >Twitter</a
-        >
-      </li>
-      <li>
-        <a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a>
-      </li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li>
-        <a href="https://router.vuejs.org" target="_blank" rel="noopener"
-          >vue-router</a
-        >
-      </li>
-      <li>
-        <a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a>
-      </li>
-      <li>
-        <a
-          href="https://github.com/vuejs/vue-devtools#vue-devtools"
-          target="_blank"
-          rel="noopener"
-          >vue-devtools</a
-        >
-      </li>
-      <li>
-        <a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener"
-          >vue-loader</a
-        >
-      </li>
-      <li>
-        <a
-          href="https://github.com/vuejs/awesome-vue"
-          target="_blank"
-          rel="noopener"
-          >awesome-vue</a
-        >
-      </li>
-    </ul>
+    <h1>功能清单</h1>
+    <p>添加到桌面</p>
+    <p>消息通知</p>
+    <div class="msg">消息通知演示按钮</div>
+    <div class="install-banner" @click="addApp" v-show="showInstallation">
+      <span class="guide">喜欢我们的应用？点我添加桌面吧！</span> 
+    </div>
   </div>
 </template>
 
 <script>
+let savedPrompt = null;
 export default {
   name: "HelloWorld",
+  data(){
+    return {
+      showInstallation: false,
+    }
+  },
+  created(){
+     window.addEventListener('beforeinstallprompt', e =>{
+      // 阻止默认提示弹出
+      e.preventDefault()
+      // 把事件存起来
+      savedPrompt = e
+      console.log(savedPrompt);
+      // 显示按钮
+      this.showInstallation = true;
+    })
+
+  },
   props: {
     msg: String,
   },
+  methods: {
+    addApp(){
+       // 隐藏按钮
+       this.showInstallation =  false;
+      // 触发安装提示展现
+      savedPrompt.prompt()
+      // 用户行为判断
+      savedPrompt.userChoice.then(result =>{
+        // 用户操作之后清空事件
+        savedPrompt = null
+        if (result.outcome === 'accept') {
+          // 用户将站点添加到桌面
+          console.log('已经添加到桌面')
+        } else {
+          // 用户取消操作
+          console.log('用户取消安装')
+        }
+      })
+    }
+
+  }
 };
+
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.install-banner{
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width:100%;
+  height: 60px;
+  line-height: 60px;
+  background: #42b983;
+  color: black;
+  font-size: 16px;
+  text-align: center;
+  cursor: pointer;
+}
 h3 {
   margin: 40px 0 0;
 }
