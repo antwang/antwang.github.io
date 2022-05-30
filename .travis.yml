@@ -1,0 +1,17 @@
+language: node_js
+node_js:
+ - "16"
+
+cache: npm
+
+script: npm run build
+before_deploy:
+  - echo $TRAVIS_BUILD_DIR
+deploy:
+ provider: pages
+ skip_cleanup: true
+ github_token: $GITHUB_TOKEN
+ local_dir: "dist/"
+ allow_failure: true
+ on:
+   branch: master
