@@ -1,3 +1,10 @@
+<!--
+ * @Author: ant
+ * @Date: 2022-05-25 22:40:23
+ * @LastEditTime: 2022-05-31 00:16:04
+ * @LastEditors: ant
+ * @Description: 
+-->
 <template>
   <img alt="Vue logo" src="./assets/logo.png">
   <HelloWorld msg="Welcome to Your Vue.js App"/>
@@ -19,8 +26,7 @@ export default {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  margin-top: 50px;
 }
 </style>
