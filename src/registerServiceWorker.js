@@ -1,28 +1,28 @@
 /*
  * @Author: ant
  * @Date: 2022-05-25 22:40:23
- * @LastEditTime: 2022-05-29 23:03:13
+ * @LastEditTime: 2022-05-30 16:54:01
  * @LastEditors: ant
  * @Description: 
  */
 /* eslint-disable no-console */
 
 import { register } from 'register-service-worker'
-// function showNotification() {
-//   Notification.requestPermission().then(res => {
-//     console.log(res)
-//     if (res === 'granted') {
-//       navigator.serviceWorker.ready.then(registration => {
-//         registration.showNotification('通知示例', {
-//           body: '我是桌面通知',
-//           icon: '/img/icons/android-chrome-192x192.png',
-//           vibrate: [200, 100, 200, 100, 200, 100, 200],
-//           tag: 'vibration-sample'
-//         });
-//       });
-//     }
-//   })
-// }
+function showNotification() {
+  Notification.requestPermission().then(res => {
+    console.log(res)
+    if (res === 'granted') {
+      navigator.serviceWorker.ready.then(registration => {
+        registration.showNotification('通知示例', {
+          body: '我是桌面通知',
+          icon: '/img/icons/android-chrome-192x192.png',
+          vibrate: [200, 100, 200, 100, 200, 100, 200],
+          tag: 'vibration-sample'
+        });
+      });
+    }
+  })
+}
 if (process.env.NODE_ENV === 'production') {
   register(`${process.env.BASE_URL}sw.js`, {
     ready() {
@@ -30,11 +30,11 @@ if (process.env.NODE_ENV === 'production') {
         'App is being served from cache by a service worker.\n' +
         'For more details, visit https://goo.gl/AFskqB'
       )
-      // showNotification();
+      showNotification();
     },
     registered() {
       console.log('Service worker has been registered.')
-      // showNotification();
+      showNotification();
     },
     cached() {
       console.log('Content has been cached for offline use.')

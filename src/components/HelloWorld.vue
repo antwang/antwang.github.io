@@ -7,7 +7,6 @@
       Notification API 在不同的浏览器上的支持度不同，因此在部分浏览器可能不支持
       Notification API，也有可能部分配置失效。
     </p>
-    <!-- <p>当前浏览器支持情况：<button id="notification-state" @click="">查看</button></p> -->
     <p>
       For a guide and recipes on how to configure / customize this project,<br />
       check out the
