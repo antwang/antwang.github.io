@@ -1,7 +1,7 @@
 /*
  * @Author: ant
  * @Date: 2022-05-25 22:40:23
- * @LastEditTime: 2022-05-26 17:06:33
+ * @LastEditTime: 2022-05-30 18:20:53
  * @LastEditors: ant
  * @Description: 
  */
@@ -10,6 +10,8 @@ module.exports = defineConfig({
   transpileDependencies: true,
   pwa: {
     workboxPluginMode: "InjectManifest",
+    appleMobileWebAppCapable: 'yes',
+    appleMobileWebAppStatusBarStyle: 'black',
     workboxOptions: {
       swSrc: "./src/sw.js"
     }
