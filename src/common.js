@@ -1,12 +1,17 @@
 /*
  * @Author: ant
  * @Date: 2022-05-30 22:54:24
- * @LastEditTime: 2022-05-31 00:30:20
+ * @LastEditTime: 2022-05-31 21:07:03
  * @LastEditors: ant
  * @Description: 
  */
+
+const VAPIDPublicKey = 'BPAlVBGt3YFzGBTOjrCbNVk5Q-2zkETpExGRO00CmyS3FqLI9LSGZHu4fJhIz0sObXwK88ArqZQdGpv51h3NbZg';
 function isNotificationSupported() {
     return 'Notification' in window
+}
+function isPushManagerSupported() {
+    return 'PushManager' in window
 }
 export const askNotificationPermission = async () => {
     if (!isNotificationSupported()) {
@@ -41,5 +46,55 @@ export const displayNotification = async (msg) => {
     }
 }
 
+function uint8ArrayToBase64(arr) {
+    return btoa(String.fromCharCode.apply(null, new Uint8Array(arr)))
+}
 
-// export default { displayNotification, askNotificationPermission }
+function base64ToUint8Array(base64String) {
+    let padding = '='.repeat((4 - base64String.length % 4) % 4)
+    let base64 = (base64String + padding)
+        .replace(/-/g, '+')
+        .replace(/_/g, '/')
+    let rawData = atob(base64)
+    let outputArray = new Uint8Array(rawData.length)
+    for (let i = 0; i < rawData.length; i++) {
+        outputArray[i] = rawData.charCodeAt(i)
+    }
+    return outputArray
+}
+function distributePushResource(subscription) {
+    return fetch('/api/push/subscribe', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            endpoint: subscription.endpoint,
+            keys: {
+                p256dh: uint8ArrayToBase64(subscription.getKey('p256dh')),
+                auth: uint8ArrayToBase64(subscription.getKey('auth'))
+            }
+        })
+    })
+}
+
+// 订阅推送并将订阅结果发送给后端
+export const subscribeAndDistribute = async (registration) => {
+    if (!isPushManagerSupported()) {
+        return Promise.reject('系统不支持消息推送')
+    }
+    let pushSubscription = await registration.pushManager.getSubscription();
+    if (pushSubscription) {
+        return
+    } else {
+        try {
+            pushSubscription = await registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: base64ToUint8Array(VAPIDPublicKey)
+            });
+            distributePushResource(pushSubscription)
+        } catch (e) {
+            console.log(e)
+        }
+    }
+}

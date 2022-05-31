@@ -1,7 +1,7 @@
 /*
  * @Author: ant
  * @Date: 2022-05-26 17:05:16
- * @LastEditTime: 2022-05-31 13:20:15
+ * @LastEditTime: 2022-05-31 21:10:43
  * @LastEditors: ant
  * @Description: 
  */
@@ -22,30 +22,19 @@ self.addEventListener('notificationclick',  (e) => {
     }
 })
 
-// let msg = {
-//     title: "消息标题",
-//     body: {
-//         body: '点赞按钮可点击',
-//         icon: '/img/icons/android-chrome-192x192.png',
-//         image: "https://tenfei01.cfp.cn/creative/vcg/800/version23/VCG21154786fd8.jpg",
-//         vibrate: [200, 100, 200, 100, 200, 100, 200],
-//         data: {
-//             url: "https://tenfei01.cfp.cn/creative/vcg/800/version23/VCG21154786fd8.jpg",
-//             desc: "我是城市风景照"
-//         },
-//         actions: [
-//             {
-//                 action: 'like',
-//                 title: '点赞',
-//                 icon: '/img/icons/apple-touch-icon.png'
-//             }
-//         ]
-//     }
-// }
-// 向用户展示消息弹窗
-// self.registration.showNotification(msg.title, msg.body).then(() => {
-//     console.log("消息正常弹出")
-
-// }).catch(e => {
-//     console.log("消息未获许可", e)
-// })
+// 监听 push 事件
+self.addEventListener('push', function (e) {
+    if (!e.data) {
+      return
+    }
+    // 解析获取推送消息
+    let payload = e.data.text()
+    // 根据推送消息生成桌面通知并展现出来
+    let promise = self.registration.showNotification(payload.title, {
+      body: payload.body,
+      data: {
+        url: payload.url
+      }
+    })
+    e.waitUntil(promise)
+  })

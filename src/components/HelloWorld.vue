@@ -1,7 +1,7 @@
 <!--
  * @Author: ant
  * @Date: 2022-05-25 22:40:23
- * @LastEditTime: 2022-05-31 13:51:19
+ * @LastEditTime: 2022-05-31 21:18:53
  * @LastEditors: ant
  * @Description: 
 -->
@@ -47,7 +47,7 @@ const msgs = [{
             desc: "我是城市风景照",
           }
         },
-      }]
+}];
 const showMsg = (type)=> displayNotification(msgs[type]);
 let savedPrompt = null;
 const showInstallation = ref(false);
