@@ -1,7 +1,7 @@
 <!--
  * @Author: ant
  * @Date: 2022-05-25 22:40:23
- * @LastEditTime: 2022-05-31 13:39:43
+ * @LastEditTime: 2022-05-31 13:51:19
  * @LastEditors: ant
  * @Description: 
 -->
@@ -124,6 +124,9 @@ const addAToHomeScreen = () => {
 </template>
 
 <style scoped>
+.hello{
+  padding: 0 10px;
+}
 .install-banner {
   position: fixed;
   bottom: 0;

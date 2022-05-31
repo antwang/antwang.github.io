@@ -1,7 +1,7 @@
 <!--
  * @Author: ant
  * @Date: 2022-05-25 22:40:23
- * @LastEditTime: 2022-05-31 12:51:43
+ * @LastEditTime: 2022-05-31 13:50:41
  * @LastEditors: ant
  * @Description: 
 -->
@@ -27,6 +27,7 @@ h3{
   font-size: 20px;
 }
 #app {
+  
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
