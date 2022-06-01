@@ -1,30 +1,22 @@
 /*
  * @Author: ant
  * @Date: 2022-06-01 11:41:52
- * @LastEditTime: 2022-06-01 16:11:50
+ * @LastEditTime: 2022-06-01 18:25:51
  * @LastEditors: ant
  * @Description: 
  */
-let savedPrompt = null
-let _resolve = null;
-let appInstallPromise = new Promise((resolve) => {
-    _resolve = resolve
-})
-
+let _savedPrompt = null
 window.addEventListener("beforeinstallprompt", e => {
     // 阻止默认提示弹出
     e.preventDefault();
     // 把事件存起来
-    savedPrompt = e;
-    // _resolveBeforeInstall(savedPrompt);
-    _resolve(savedPrompt)
+    _savedPrompt = e;
+    console.log('savedPrompt in window.addEvent',_savedPrompt)
 })
 
 window.addEventListener("appinstalled", () => {
     console.log("PWA 应用已经在桌面了");
-    savedPrompt = null;
-    // _resolveAppInstalled()
-    savedPrompt(savedPrompt)
+    _savedPrompt = null;
 })
 
 // const addAToHomeScreen = (fn = (outcome)=>{}) => {
@@ -49,4 +41,4 @@ window.addEventListener("appinstalled", () => {
 //     });
 //     })
 //   }
-export default appInstallPromise 
+

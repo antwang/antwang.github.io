@@ -1,14 +1,13 @@
 <!--
  * @Author: ant
  * @Date: 2022-05-25 22:40:23
- * @LastEditTime: 2022-06-01 16:32:30
+ * @LastEditTime: 2022-06-01 18:27:53
  * @LastEditors: ant
  * @Description: 
 -->
 <script setup>
-import { onMounted, ref } from "vue";
+import { ref } from "vue";
 import { Button } from "vant";
-import appInstallPromise from "../utils/customInstallation";
 import { displayNotification } from "../utils/notification";
 // 业务中需要掉用此接口，将pushScription 发送给业务服务器。业务服务器需要pushScription向推送服务器推送消息。
 const msgs = [
@@ -54,34 +53,41 @@ const msgs = [
     },
   },
 ];
-let savedPrompt = null
-onMounted(async () => {
-  savedPrompt = await appInstallPromise
-  if (savedPrompt) {
-    showInstallation.value = true;
-  }
-});
+
+let savedPrompt = null;
+
 const showMsg = (type) => displayNotification(msgs[type]);
 const showInstallation = ref(false);
+window.addEventListener("beforeinstallprompt", e => {
+    // 阻止默认提示弹出
+    e.preventDefault();
+    // 把事件存起来
+    savedPrompt = e;
+    // 展示引导banner
+    showInstallation.value = true;
+})
 
-const addAToHomeScreen = () => {
-  // 触发安装提示展现
-  savedPrompt.prompt();
-  // 用户行为判断
-  savedPrompt.userChoice.then((result) => {
-   
-    if (result.outcome === "accept") {
+window.addEventListener("appinstalled", () => {
+    console.log("PWA 应用已经在桌面了");
+    savedPrompt = null;
+})
+const addAToHomeScreen = async () => {
+  // 触发安装提示展现，userChoice 属性是根据用户的选择进行解析的承诺。您只能调用延迟事件的 prompt() 一次。如果用户关闭了它，您需要等到 beforeinstallprompt 事件被再次触发，通常是在 userChoice 属性解析后立即触发。
+  if (savedPrompt) {
+    savedPrompt.prompt();
+    let { outcome } = await savedPrompt.userChoice;
+    // 用户操作之后清空事件
+    savedPrompt = null;
+    if (outcome === "accept") {
       // 隐藏按钮
       showInstallation.value = false;
-       // 用户操作之后清空事件
-      savedPrompt = null;
       // 用户将站点添加到桌面
       console.log("已经添加到桌面");
     } else {
       // 用户取消操作
       console.log("用户取消安装");
     }
-  });
+  }
 };
 </script>
 
