@@ -1,7 +1,7 @@
 /*
  * @Author: ant
  * @Date: 2022-05-30 22:54:24
- * @LastEditTime: 2022-05-31 21:07:03
+ * @LastEditTime: 2022-06-01 10:50:05
  * @LastEditors: ant
  * @Description: 
  */
@@ -46,22 +46,6 @@ export const displayNotification = async (msg) => {
     }
 }
 
-function uint8ArrayToBase64(arr) {
-    return btoa(String.fromCharCode.apply(null, new Uint8Array(arr)))
-}
-
-function base64ToUint8Array(base64String) {
-    let padding = '='.repeat((4 - base64String.length % 4) % 4)
-    let base64 = (base64String + padding)
-        .replace(/-/g, '+')
-        .replace(/_/g, '/')
-    let rawData = atob(base64)
-    let outputArray = new Uint8Array(rawData.length)
-    for (let i = 0; i < rawData.length; i++) {
-        outputArray[i] = rawData.charCodeAt(i)
-    }
-    return outputArray
-}
 function distributePushResource(subscription) {
     return fetch('/api/push/subscribe', {
         method: 'POST',
@@ -85,16 +69,17 @@ export const subscribeAndDistribute = async (registration) => {
     }
     let pushSubscription = await registration.pushManager.getSubscription();
     if (pushSubscription) {
-        return
+        return Promise.resolve(pushSubscription)
     } else {
         try {
             pushSubscription = await registration.pushManager.subscribe({
                 userVisibleOnly: true,
                 applicationServerKey: base64ToUint8Array(VAPIDPublicKey)
             });
+            // 实际应用中，请删除，并在业务中进行自行调用发送订阅的方法
             distributePushResource(pushSubscription)
         } catch (e) {
-            console.log(e)
+            return Promise.reject(e)
         }
     }
 }
