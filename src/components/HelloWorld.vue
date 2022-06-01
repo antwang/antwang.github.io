@@ -1,7 +1,7 @@
 <!--
  * @Author: ant
  * @Date: 2022-05-25 22:40:23
- * @LastEditTime: 2022-06-01 16:19:11
+ * @LastEditTime: 2022-06-01 16:32:30
  * @LastEditors: ant
  * @Description: 
 -->
@@ -69,11 +69,12 @@ const addAToHomeScreen = () => {
   savedPrompt.prompt();
   // 用户行为判断
   savedPrompt.userChoice.then((result) => {
-    // 用户操作之后清空事件
-    savedPrompt = null;
+   
     if (result.outcome === "accept") {
       // 隐藏按钮
       showInstallation.value = false;
+       // 用户操作之后清空事件
+      savedPrompt = null;
       // 用户将站点添加到桌面
       console.log("已经添加到桌面");
     } else {
