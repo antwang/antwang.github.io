@@ -1,7 +1,7 @@
 <!--
  * @Author: ant
  * @Date: 2022-05-25 22:40:23
- * @LastEditTime: 2022-06-01 18:27:53
+ * @LastEditTime: 2022-06-02 14:03:14
  * @LastEditors: ant
  * @Description: 
 -->
@@ -53,6 +53,8 @@ const msgs = [
     },
   },
 ];
+let log = ref('');
+
 
 let savedPrompt = null;
 
@@ -78,14 +80,17 @@ const addAToHomeScreen = async () => {
     let { outcome } = await savedPrompt.userChoice;
     // 用户操作之后清空事件
     savedPrompt = null;
-    if (outcome === "accept") {
+    if (outcome == "accept") {
       // 隐藏按钮
+      log.value = '你已确认将web app安装到桌面'
       showInstallation.value = false;
       // 用户将站点添加到桌面
       console.log("已经添加到桌面");
-    } else {
+    } else if(outcome == ''){
       // 用户取消操作
       console.log("用户取消安装");
+      log.value = '你已取消安装'
+
     }
   }
 };
@@ -115,6 +120,11 @@ const addAToHomeScreen = async () => {
       <div class="op-box">
         <Button type="success" @click="showMsg(1)">发送通知</Button>
       </div>
+    </section>
+     <section class="card">
+      <h3>操作日志：</h3>
+      <p>{{log}}</p>
+      
     </section>
 
     <div
