@@ -1,7 +1,7 @@
 <!--
  * @Author: ant
  * @Date: 2022-05-25 22:40:23
- * @LastEditTime: 2022-06-02 14:12:25
+ * @LastEditTime: 2022-06-02 14:39:53
  * @LastEditors: ant
  * @Description: 
 -->
@@ -62,16 +62,32 @@ const showMsg = (type) => displayNotification(msgs[type]);
 const showInstallation = ref(false);
 window.addEventListener("beforeinstallprompt", e => {
     // 阻止默认提示弹出
-    e.preventDefault();
+    // e.preventDefault();
     // 把事件存起来
-    savedPrompt = e;
+    e.userChoice.then(res => {
+      let {outcome} = res
+      if (outcome == "accept") {
+      // 隐藏按钮
+      log.value = '你已确认将web app安装到桌面'
+      log.value = `${outcome}: 你已确认将web app安装到桌面`
+      // showInstallation.value = false;
+      // 用户将站点添加到桌面
+      console.log("已经添加到桌面");
+    } else {
+      // 用户取消操作
+      console.log("用户取消安装");
+      log.value = `${outcome}: 你已取消安装`
+
+    }
+    })
+    // savedPrompt = e;
     // 展示引导banner
-    showInstallation.value = true;
+    // showInstallation.value = true;
 })
 
 window.addEventListener("appinstalled", () => {
     console.log("PWA 应用已经在桌面了");
-    savedPrompt = null;
+    // savedPrompt = null;
 })
 const addAToHomeScreen = async () => {
   // 触发安装提示展现，userChoice 属性是根据用户的选择进行解析的承诺。您只能调用延迟事件的 prompt() 一次。如果用户关闭了它，您需要等到 beforeinstallprompt 事件被再次触发，通常是在 userChoice 属性解析后立即触发。
