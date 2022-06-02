@@ -1,7 +1,7 @@
 <!--
  * @Author: ant
  * @Date: 2022-05-25 22:40:23
- * @LastEditTime: 2022-06-02 14:39:53
+ * @LastEditTime: 2022-06-02 15:20:29
  * @LastEditors: ant
  * @Description: 
 -->
@@ -53,42 +53,38 @@ const msgs = [
     },
   },
 ];
-let log = ref('');
-
-
+let log = ref("");
 let savedPrompt = null;
 
 const showMsg = (type) => displayNotification(msgs[type]);
 const showInstallation = ref(false);
-window.addEventListener("beforeinstallprompt", e => {
-    // 阻止默认提示弹出
-    // e.preventDefault();
+window.addEventListener("beforeinstallprompt", async (e) => {
+  // 阻止默认提示弹出
+  // e.preventDefault();
     // 把事件存起来
-    e.userChoice.then(res => {
-      let {outcome} = res
-      if (outcome == "accept") {
-      // 隐藏按钮
-      log.value = '你已确认将web app安装到桌面'
-      log.value = `${outcome}: 你已确认将web app安装到桌面`
-      // showInstallation.value = false;
-      // 用户将站点添加到桌面
-      console.log("已经添加到桌面");
-    } else {
-      // 用户取消操作
-      console.log("用户取消安装");
-      log.value = `${outcome}: 你已取消安装`
-
-    }
-    })
-    // savedPrompt = e;
-    // 展示引导banner
-    // showInstallation.value = true;
-})
+  savedPrompt = e;
+  // 展示引导banner
+  showInstallation.value = true;
+  let res = await e.userChoice;
+  let { outcome } = res;
+  console.log(res);
+  console.log(outcome);
+  if (outcome == "accepted" || res == "accepted") {
+    // 隐藏按钮
+    showInstallation.value = false;
+    // 用户将站点添加到桌面
+    console.log("已经添加到桌面");
+  } else {
+    // 用户取消操作
+    console.log("用户取消安装");
+    log.value = `${outcome}: 你已取消安装`;
+  }
+});
 
 window.addEventListener("appinstalled", () => {
-    console.log("PWA 应用已经在桌面了");
-    // savedPrompt = null;
-})
+  console.log("PWA 应用已经在桌面了");
+  savedPrompt = null;
+});
 const addAToHomeScreen = async () => {
   // 触发安装提示展现，userChoice 属性是根据用户的选择进行解析的承诺。您只能调用延迟事件的 prompt() 一次。如果用户关闭了它，您需要等到 beforeinstallprompt 事件被再次触发，通常是在 userChoice 属性解析后立即触发。
   if (savedPrompt) {
@@ -96,17 +92,16 @@ const addAToHomeScreen = async () => {
     let { outcome } = await savedPrompt.userChoice;
     // 用户操作之后清空事件
     savedPrompt = null;
-    if (outcome == "accept") {
+    if (outcome == "accept" || outcome == "accepted") {
       // 隐藏按钮
-      log.value = '你已确认将web app安装到桌面'
       showInstallation.value = false;
+      log.value = `${outcome}: 你已确认将web app安装到桌面`;
       // 用户将站点添加到桌面
       console.log("已经添加到桌面");
-    } else{
+    } else {
       // 用户取消操作
       console.log("用户取消安装");
-      log.value = '你已取消安装'
-
+      log.value = `${outcome}: 你已取消安装`;
     }
   }
 };
@@ -137,10 +132,9 @@ const addAToHomeScreen = async () => {
         <Button type="success" @click="showMsg(1)">发送通知</Button>
       </div>
     </section>
-     <section class="card">
+    <section class="card">
       <h3>操作日志：</h3>
-      <p>{{log}}</p>
-      
+      <p>{{ log }}</p>
     </section>
 
     <div
