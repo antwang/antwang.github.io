@@ -1,7 +1,7 @@
 <!--
  * @Author: ant
  * @Date: 2022-05-25 22:40:23
- * @LastEditTime: 2022-06-02 14:03:14
+ * @LastEditTime: 2022-06-02 14:12:25
  * @LastEditors: ant
  * @Description: 
 -->
@@ -86,7 +86,7 @@ const addAToHomeScreen = async () => {
       showInstallation.value = false;
       // 用户将站点添加到桌面
       console.log("已经添加到桌面");
-    } else if(outcome == ''){
+    } else{
       // 用户取消操作
       console.log("用户取消安装");
       log.value = '你已取消安装'
