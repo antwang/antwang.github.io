@@ -1,7 +1,7 @@
 <!--
  * @Author: ant
  * @Date: 2022-05-25 22:40:23
- * @LastEditTime: 2022-06-06 17:25:26
+ * @LastEditTime: 2022-06-06 18:28:20
  * @LastEditors: ant
  * @Description: 
 -->
@@ -75,6 +75,7 @@ let savedPrompt = null;
 const showMsg = (type) => displayNotification(msgs[type]);
 const getInfo = async () => {
   let reg = await navigator.serviceWorker.getRegistration();
+  console.log(JSON.stringify(reg))
   let pub = await subscribe(reg);
   console.log(JSON.stringify(pub));
   pushInfo.value = JSON.stringify(pub);

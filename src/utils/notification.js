@@ -1,7 +1,7 @@
 /*
  * @Author: ant
  * @Date: 2022-05-30 22:54:24
- * @LastEditTime: 2022-06-06 14:26:54
+ * @LastEditTime: 2022-06-06 18:45:32
  * @LastEditors: ant
  * @Description: 
  */
@@ -74,25 +74,29 @@ export const subscribe = async (registration) => {
     if (!isPushManagerSupported()) {
         return Promise.reject('系统不支持消息推送')
     }
-    let pushSubscription = await registration.pushManager.getSubscription();
-    if (pushSubscription) {
-        return Promise.resolve(pushSubscription)
-    } else {
-        try {
-            pushSubscription = await registration.pushManager.subscribe({
-                userVisibleOnly: true,
-                applicationServerKey: base64ToUint8Array(VAPIDPublicKey)
-            });
+    try {
+        let pushSubscription = await registration.pushManager.getSubscription();
+        if (pushSubscription) {
             return Promise.resolve(pushSubscription)
-        } catch (e) {
-            return Promise.reject(e)
+        } else {
+            try {
+                pushSubscription = await registration.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: base64ToUint8Array(VAPIDPublicKey)
+                });
+                return Promise.resolve(pushSubscription)
+            } catch (e) {
+                return Promise.reject(e)
+            }
         }
+    } catch (e) {
+        console.log(e)
     }
 }
 
 
-export const sendPushSubscription = (pushScription)=>{
-  return fetch('/api/push/subscribe', {
+export const sendPushSubscription = (pushScription) => {
+    return fetch('/api/push/subscribe', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
