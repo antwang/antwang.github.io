@@ -1,14 +1,14 @@
 /*
  * @Author: ant
  * @Date: 2022-05-25 22:40:23
- * @LastEditTime: 2022-06-06 16:19:28
+ * @LastEditTime: 2022-06-06 19:49:39
  * @LastEditors: ant
  * @Description: 
  */
 /* eslint-disable no-console */
 
 import { register } from 'register-service-worker'
-import {subscribe, sendPushSubscription} from './utils/notification'
+import {subscribe,} from './utils/notification'
 if (process.env.NODE_ENV === 'production') {
   register(`${process.env.BASE_URL}sw.js`, {
     async ready(reg) {
@@ -18,9 +18,12 @@ if (process.env.NODE_ENV === 'production') {
       )
       // 订阅推送消息
       // subscribeAndDistribute(reg);
+      console.log(`registration对象是：`)
+      console.log(reg)
       let pushSubscription = await subscribe(reg)
-      console.log(pushSubscription)
-      sendPushSubscription(pushSubscription)
+      console.log(`请复制如下pushSubscription对象：`)
+      console.log(JSON.stringify(pushSubscription))
+      // sendPushSubscription(pushSubscription)
       // todo: 调用接口，将订阅信息发送给业务服务器，待服务端提供
     },
     async registered() {

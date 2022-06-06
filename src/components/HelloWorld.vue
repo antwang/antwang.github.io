@@ -1,14 +1,14 @@
 <!--
  * @Author: ant
  * @Date: 2022-05-25 22:40:23
- * @LastEditTime: 2022-06-06 18:28:20
+ * @LastEditTime: 2022-06-06 19:48:58
  * @LastEditors: ant
  * @Description: 
 -->
 <script setup>
 import { ref } from "vue";
 import { Button } from "vant";
-import { displayNotification, subscribe } from "../utils/notification";
+import { displayNotification } from "../utils/notification";
 // 业务中需要掉用此接口，将pushScription 发送给业务服务器。业务服务器需要pushScription向推送服务器推送消息。
 // const sendPushSubscription = (pushScription)=>{
 //   return fetch('/api/push/subscribe', {
@@ -69,17 +69,17 @@ const msgs = [
   },
 ];
 let log = ref("");
-let pushInfo = ref('');
+// let pushInfo = ref('');
 let savedPrompt = null;
 
 const showMsg = (type) => displayNotification(msgs[type]);
-const getInfo = async () => {
-  let reg = await navigator.serviceWorker.getRegistration();
-  console.log(JSON.stringify(reg))
-  let pub = await subscribe(reg);
-  console.log(JSON.stringify(pub));
-  pushInfo.value = JSON.stringify(pub);
-}
+// const getInfo = async () => {
+//   let reg = await navigator.serviceWorker.getRegistration();
+//   console.log(JSON.stringify(reg))
+//   let pub = await subscribe(reg);
+//   console.log(JSON.stringify(pub));
+//   pushInfo.value = JSON.stringify(pub);
+// }
 const showInstallation = ref(false);
 window.addEventListener("beforeinstallprompt", async (e) => {
   // 阻止默认提示弹出
@@ -156,14 +156,14 @@ const addAToHomeScreen = async () => {
       </div>
     </section>
 
-    <section class="card">
+    <!-- <section class="card">
       <h3>消息推送</h3>
       <p>消息推送信息对象：</p>
       <p>{{pushInfo}}</p>
       <div class="op-box">
         <Button type="success" @click="getInfo">获取推送地址</Button>
       </div>
-    </section>
+    </section> -->
 
     <section class="card">
       <h3>操作日志：</h3>
