@@ -1,7 +1,7 @@
 /*
  * @Author: ant
  * @Date: 2022-05-26 17:05:16
- * @LastEditTime: 2022-05-31 21:10:43
+ * @LastEditTime: 2022-06-06 17:02:39
  * @LastEditors: ant
  * @Description: 
  */
@@ -27,8 +27,10 @@ self.addEventListener('push', function (e) {
     if (!e.data) {
       return
     }
+    console.log('获取到服务端推送：')
+    console.log(e.data)
     // 解析获取推送消息
-    let payload = e.data.text()
+    let payload = e.data.json()
     // 根据推送消息生成桌面通知并展现出来
     let promise = self.registration.showNotification(payload.title, {
       body: payload.body,

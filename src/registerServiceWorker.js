@@ -1,14 +1,14 @@
 /*
  * @Author: ant
  * @Date: 2022-05-25 22:40:23
- * @LastEditTime: 2022-06-01 15:49:34
+ * @LastEditTime: 2022-06-06 16:19:28
  * @LastEditors: ant
  * @Description: 
  */
 /* eslint-disable no-console */
 
 import { register } from 'register-service-worker'
-import {subscribe} from './utils/notification'
+import {subscribe, sendPushSubscription} from './utils/notification'
 if (process.env.NODE_ENV === 'production') {
   register(`${process.env.BASE_URL}sw.js`, {
     async ready(reg) {
@@ -20,6 +20,7 @@ if (process.env.NODE_ENV === 'production') {
       // subscribeAndDistribute(reg);
       let pushSubscription = await subscribe(reg)
       console.log(pushSubscription)
+      sendPushSubscription(pushSubscription)
       // todo: 调用接口，将订阅信息发送给业务服务器，待服务端提供
     },
     async registered() {

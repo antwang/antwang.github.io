@@ -1,11 +1,11 @@
 /*
  * @Author: ant
  * @Date: 2022-05-30 22:54:24
- * @LastEditTime: 2022-06-01 16:23:10
+ * @LastEditTime: 2022-06-06 14:26:54
  * @LastEditors: ant
  * @Description: 
  */
-import { base64ToUint8Array } from './common'
+import { base64ToUint8Array, uint8ArrayToBase64 } from './common'
 // 服务器公钥，正式环境中，改为从服务端接口获取
 const VAPIDPublicKey = 'BPAlVBGt3YFzGBTOjrCbNVk5Q-2zkETpExGRO00CmyS3FqLI9LSGZHu4fJhIz0sObXwK88ArqZQdGpv51h3NbZg';
 /**
@@ -57,8 +57,10 @@ export const askNotificationPermission = async () => {
  */
 export const displayNotification = async (msg) => {
     let permission = await askNotificationPermission();
+    console.log(permission)
     if (permission === 'granted') {
         let registration = await navigator.serviceWorker.getRegistration();
+        console.log(registration)
         registration.showNotification(msg.title, msg.body);
     }
 }
@@ -89,18 +91,18 @@ export const subscribe = async (registration) => {
 }
 
 
-// const sendPushSubscription = (pushScription)=>{
-//   return fetch('/api/push/subscribe', {
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/json'
-//         },
-//         body: JSON.stringify({
-//             endpoint: pushScription.endpoint,
-//             keys: {
-//                 p256dh: uint8ArrayToBase64(pushScription.getKey('p256dh')),
-//                 auth: uint8ArrayToBase64(pushScription.getKey('auth'))
-//             }
-//         })
-//     })
-// }
+export const sendPushSubscription = (pushScription)=>{
+  return fetch('/api/push/subscribe', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            endpoint: pushScription.endpoint,
+            keys: {
+                p256dh: uint8ArrayToBase64(pushScription.getKey('p256dh')),
+                auth: uint8ArrayToBase64(pushScription.getKey('auth'))
+            }
+        })
+    })
+}
