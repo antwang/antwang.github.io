@@ -1,7 +1,7 @@
 <!--
  * @Author: ant
  * @Date: 2022-05-25 22:40:23
- * @LastEditTime: 2022-06-07 16:55:51
+ * @LastEditTime: 2022-06-07 17:07:37
  * @LastEditors: ant
  * @Description: 
 -->
@@ -69,7 +69,6 @@ const msgs = [
     },
   },
 ];
-let log = ref("");
 let pushInfo = ref('');
 let savedPrompt = null;
 const VAPIDPublicKey = 'BPAlVBGt3YFzGBTOjrCbNVk5Q-2zkETpExGRO00CmyS3FqLI9LSGZHu4fJhIz0sObXwK88ArqZQdGpv51h3NbZg';
@@ -97,6 +96,13 @@ const getInfo = async () => {
       }
     }).catch(e=>{
       console.log(`调用getSubscription获取pushsub对象失败：`, e)
+      reg.pushManager.subscribe({userVisibleOnly: true, applicationServerKey: base64ToUint8Array(VAPIDPublicKey)}).then(pushSub=>{
+          console.log(`已获取到pushSubscription对象：`)
+          console.log(JSON.stringify(pushSub))
+          pushInfo.value = JSON.stringify(pushSub)
+        }).catch(e=>{
+          console.log(`调用subscribe获取pushsub对象失败：`,e)
+        })
     });
   })
 }
@@ -120,7 +126,6 @@ window.addEventListener("beforeinstallprompt", async (e) => {
   } else {
     // 用户取消操作
     console.log("用户取消安装");
-    log.value = `${outcome}: 你已取消安装`;
   }
 });
 
@@ -138,13 +143,11 @@ const addAToHomeScreen = async () => {
     if (outcome == "accept" || outcome == "accepted") {
       // 隐藏按钮
       showInstallation.value = false;
-      log.value = `${outcome}: 你已确认将web app安装到桌面`;
       // 用户将站点添加到桌面
       console.log("已经添加到桌面");
     } else {
       // 用户取消操作
       console.log("用户取消安装");
-      log.value = `${outcome}: 你已取消安装`;
     }
   }
 };
@@ -184,12 +187,6 @@ const addAToHomeScreen = async () => {
         <Button type="success" @click="getInfo">获取推送地址</Button>
       </div>
     </section>
-
-    <section class="card">
-      <h3>操作日志：</h3>
-      <p>{{ log }}</p>
-    </section>
-
     <div
       class="install-banner"
       @click="addAToHomeScreen"
