@@ -1,14 +1,14 @@
 <!--
  * @Author: ant
  * @Date: 2022-05-25 22:40:23
- * @LastEditTime: 2022-06-06 19:48:58
+ * @LastEditTime: 2022-06-07 15:20:36
  * @LastEditors: ant
  * @Description: 
 -->
 <script setup>
 import { ref } from "vue";
 import { Button } from "vant";
-import { displayNotification } from "../utils/notification";
+import { displayNotification} from "../utils/notification";
 // 业务中需要掉用此接口，将pushScription 发送给业务服务器。业务服务器需要pushScription向推送服务器推送消息。
 // const sendPushSubscription = (pushScription)=>{
 //   return fetch('/api/push/subscribe', {
@@ -69,21 +69,39 @@ const msgs = [
   },
 ];
 let log = ref("");
-// let pushInfo = ref('');
+let pushInfo = ref('');
 let savedPrompt = null;
 
 const showMsg = (type) => displayNotification(msgs[type]);
-// const getInfo = async () => {
-//   let reg = await navigator.serviceWorker.getRegistration();
-//   console.log(JSON.stringify(reg))
-//   let pub = await subscribe(reg);
-//   console.log(JSON.stringify(pub));
-//   pushInfo.value = JSON.stringify(pub);
-// }
+const getInfo = async () => {
+  navigator.serviceWorker.ready.then(reg => {
+    console.log(`注册对象获取成功：`)
+    console.log(reg)
+    reg.pushManager&&reg.pushManager.getSubscription().then(pushSub => {
+      if(!pushSub){
+        // 没有订阅
+        reg.pushManager.subscribe({userVisibleOnly: true}).then(pushSub=>{
+          console.log(`已获取到pushSubscription对象：`)
+          console.log(JSON.stringify(pushSub))
+          pushInfo.value = JSON.stringify(pushSub)
+        }).catch(e=>{
+          console.log(`调用subscribe获取pushsub对象失败：`,e)
+        })
+      }else{
+        // 已经订阅
+        console.log(`用户已经订阅过，pushSubscription对象为：`)
+        console.log(JSON.stringify(pushSub))
+        pushInfo.value = JSON.stringify(pushSub)
+      }
+    }).catch(e=>{
+      console.log(`调用getSubscription获取pushsub对象失败：`, e)
+    });
+  })
+}
 const showInstallation = ref(false);
 window.addEventListener("beforeinstallprompt", async (e) => {
   // 阻止默认提示弹出
-  // e.preventDefault();
+  e.preventDefault();
     // 把事件存起来
   savedPrompt = e;
   // 展示引导banner
@@ -105,7 +123,7 @@ window.addEventListener("beforeinstallprompt", async (e) => {
 });
 
 window.addEventListener("appinstalled", () => {
-  console.log("PWA 应用已经在桌面了");
+  console.log("PWA 应用已经在你的桌面啦");
   savedPrompt = null;
 });
 const addAToHomeScreen = async () => {
@@ -156,14 +174,14 @@ const addAToHomeScreen = async () => {
       </div>
     </section>
 
-    <!-- <section class="card">
+    <section class="card">
       <h3>消息推送</h3>
       <p>消息推送信息对象：</p>
       <p>{{pushInfo}}</p>
       <div class="op-box">
         <Button type="success" @click="getInfo">获取推送地址</Button>
       </div>
-    </section> -->
+    </section>
 
     <section class="card">
       <h3>操作日志：</h3>
