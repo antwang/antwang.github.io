@@ -1,7 +1,7 @@
 /*
  * @Author: ant
  * @Date: 2022-05-30 22:54:24
- * @LastEditTime: 2022-06-06 18:45:32
+ * @LastEditTime: 2022-06-07 10:26:02
  * @LastEditors: ant
  * @Description: 
  */
@@ -76,6 +76,8 @@ export const subscribe = async (registration) => {
     }
     try {
         let pushSubscription = await registration.pushManager.getSubscription();
+        console.log('通过getSubscription获取pushSubscription:')
+        console.log(pushSubscription)
         if (pushSubscription) {
             return Promise.resolve(pushSubscription)
         } else {
@@ -84,6 +86,8 @@ export const subscribe = async (registration) => {
                     userVisibleOnly: true,
                     applicationServerKey: base64ToUint8Array(VAPIDPublicKey)
                 });
+                console.log('subscribe后获取pushSubscription:')
+                console.log(pushSubscription)
                 return Promise.resolve(pushSubscription)
             } catch (e) {
                 return Promise.reject(e)
