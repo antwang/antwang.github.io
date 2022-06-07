@@ -1,7 +1,7 @@
 <!--
  * @Author: ant
  * @Date: 2022-05-25 22:40:23
- * @LastEditTime: 2022-06-07 15:20:36
+ * @LastEditTime: 2022-06-07 16:55:51
  * @LastEditors: ant
  * @Description: 
 -->
@@ -9,6 +9,7 @@
 import { ref } from "vue";
 import { Button } from "vant";
 import { displayNotification} from "../utils/notification";
+import { base64ToUint8Array } from "@/utils/common";
 // 业务中需要掉用此接口，将pushScription 发送给业务服务器。业务服务器需要pushScription向推送服务器推送消息。
 // const sendPushSubscription = (pushScription)=>{
 //   return fetch('/api/push/subscribe', {
@@ -71,6 +72,7 @@ const msgs = [
 let log = ref("");
 let pushInfo = ref('');
 let savedPrompt = null;
+const VAPIDPublicKey = 'BPAlVBGt3YFzGBTOjrCbNVk5Q-2zkETpExGRO00CmyS3FqLI9LSGZHu4fJhIz0sObXwK88ArqZQdGpv51h3NbZg';
 
 const showMsg = (type) => displayNotification(msgs[type]);
 const getInfo = async () => {
@@ -80,7 +82,7 @@ const getInfo = async () => {
     reg.pushManager&&reg.pushManager.getSubscription().then(pushSub => {
       if(!pushSub){
         // 没有订阅
-        reg.pushManager.subscribe({userVisibleOnly: true}).then(pushSub=>{
+        reg.pushManager.subscribe({userVisibleOnly: true, applicationServerKey: base64ToUint8Array(VAPIDPublicKey)}).then(pushSub=>{
           console.log(`已获取到pushSubscription对象：`)
           console.log(JSON.stringify(pushSub))
           pushInfo.value = JSON.stringify(pushSub)
