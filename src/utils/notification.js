@@ -1,7 +1,7 @@
 /*
  * @Author: ant
  * @Date: 2022-05-30 22:54:24
- * @LastEditTime: 2022-06-08 23:39:04
+ * @LastEditTime: 2022-06-08 23:43:39
  * @LastEditors: ant
  * @Description: 
  */
@@ -33,34 +33,6 @@ const getSWRegistration = async () => {
 }
 /**
  * @description: 向用户发起授权通知
- * @return {Promise} 用户授权结果
- */
-export const askNotificationPermission = async () => {
-    if (!isNotificationSupported()) {
-        console.log('当前浏览器不支持 notifications.');
-        return Promise.reject('当前浏览器不支持 notifications.')
-    } else {
-        try {
-            let permission = await Notification.requestPermission()
-            switch (permission) {
-                case 'granted':
-                    console.log('Notification 已获授权')
-                    break
-                case 'denied':
-                    console.log('Notification 被拒绝')
-                    break
-                default:
-                    console.log('Notification 尚未授权')
-            }
-            return Promise.resolve(permission)
-        } catch (e) {
-            return Promise.reject(e)
-        }
-    }
-}
-
-/**
- * @description: 向用户发起授权通知
  * @return {String} 用户授权结果 granted denied default
  */
 export const askPermission = async () => {
@@ -73,7 +45,7 @@ export const askPermission = async () => {
         console.log(permission)
         return permission
     } catch (e) {
-        console.log(`获取授权失败`, JSON.stringify(e))
+        console.log(`获取授权失败`, e)
         return null
     }
 }
@@ -100,7 +72,7 @@ export const getNotificationPermissionState = async () => {
             let res = await navigator.permissions.query({ name: 'notifications' })
             return res.state
         } catch (e) {
-            console.log(`权限状态获取失败`, JSON.stringify(e))
+            console.log(`权限状态获取失败`, e)
             return null
         }
     }
@@ -145,7 +117,7 @@ export const subscribe = async (subscribeOptions = { userVisibleOnly: true }) =>
             return subscription
         }
     } catch (e) {
-        console.log(`订阅失败`, JSON.stringify(e))
+        console.log(`订阅失败`, e)
         return null
     }
 }
