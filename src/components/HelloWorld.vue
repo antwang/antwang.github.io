@@ -1,14 +1,19 @@
 <!--
  * @Author: ant
  * @Date: 2022-05-25 22:40:23
- * @LastEditTime: 2022-06-07 18:14:48
+ * @LastEditTime: 2022-06-08 22:58:39
  * @LastEditors: ant
  * @Description: 
 -->
 <script setup>
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { Button } from "vant";
-import { displayNotification} from "../utils/notification";
+import {
+  displayNotification,
+  subscribe,
+  unsubscribe,
+  getPushScription,
+} from "../utils/notification";
 import { base64ToUint8Array } from "@/utils/common";
 // 业务中需要掉用此接口，将pushScription 发送给业务服务器。业务服务器需要pushScription向推送服务器推送消息。
 // const sendPushSubscription = (pushScription)=>{
@@ -69,66 +74,54 @@ const msgs = [
     },
   },
 ];
-let btnUnSub = ref(false)
-let pushInfo = ref('');
+// 使用web-push生成的key
+// const VAPIDPublicKey =
+//   "BPAlVBGt3YFzGBTOjrCbNVk5Q-2zkETpExGRO00CmyS3FqLI9LSGZHu4fJhIz0sObXwK88ArqZQdGpv51h3NbZg";
+// 当前使用https://web-push-codelab.glitch.me/  工具提供的key，便于在线进行推送测试
+const VAPIDPublicKey =
+  "BN5zsRBSCmX9EjFkK-hoaSlukY-H8cBG5xuAhHi6SHH2EuLFGQpHxhLPYkZBVw8Cxc5udX8RZEpaKIOxuGV4vrk";
 let savedPrompt = null;
-const VAPIDPublicKey = 'BPAlVBGt3YFzGBTOjrCbNVk5Q-2zkETpExGRO00CmyS3FqLI9LSGZHu4fJhIz0sObXwK88ArqZQdGpv51h3NbZg';
-
-const showMsg = (type) => displayNotification(msgs[type]);
-const unsubscribeInfo = () => {
-  navigator.serviceWorker.ready.then(reg => {
-    reg.pushManager.getSubscription().then(pushSub => {
-      pushSub.unsubscribe().then(successful => {
-      console.log(`取消订阅成功~`, successful)
-      btnUnSub.value =  false
-    }).catch(e=>{
-      console.log(`取消订阅失败~`, e)
-    })
-    })
-  })
-    
-
-}
-const getInfo = async () => {
-  navigator.serviceWorker.ready.then(reg => {
-    console.log(`注册对象获取成功：`)
-    console.log(reg)
-    reg.pushManager.getSubscription().then(pushSub => {
-      if(!pushSub){
-        // 没有订阅
-        reg.pushManager.subscribe({userVisibleOnly: true, applicationServerKey: base64ToUint8Array(VAPIDPublicKey)}).then(pushSub=>{
-          console.log(`已获取到pushSubscription对象：`)
-          console.log(JSON.stringify(pushSub))
-          pushInfo.value = JSON.stringify(pushSub)
-          btnUnSub.value = true
-        }).catch(e=>{
-          console.log(`调用subscribe获取pushsub对象失败：`,e)
-        })
-      }else{
-        // 已经订阅
-        console.log(`用户已经订阅过，pushSubscription对象为：`)
-        console.log(JSON.stringify(pushSub))
-        pushInfo.value = JSON.stringify(pushSub)
-        btnUnSub.value = true
-      }
-    }).catch(e=>{
-      console.log(`调用getSubscription获取pushsub对象失败：`, e)
-      reg.pushManager.subscribe({userVisibleOnly: true, applicationServerKey: base64ToUint8Array(VAPIDPublicKey)}).then(pushSub=>{
-          console.log(`已获取到pushSubscription对象：`)
-          console.log(JSON.stringify(pushSub))
-          pushInfo.value = JSON.stringify(pushSub)
-          btnUnSub.value = true
-        }).catch(e=>{
-          console.log(`调用subscribe获取pushsub对象失败：`,e)
-        })
-    });
-  })
-}
 const showInstallation = ref(false);
+let pushInfo = ref("");
+let subscribeText = ref("订阅");
+let pushSub = null;
+onMounted(async () => {
+  pushSub = await getPushScription();
+  if (pushSub) {
+    subscribeText.value = "取消订阅";
+    pushInfo.value = JSON.stringify(pushSub);
+  } else {
+    subscribeText.value = "订阅";
+    pushInfo.value = "";
+  }
+});
+
+const subscribeOrUnsubscribe = async () => {
+  if (pushSub) {
+    // 取消订阅
+    let res = await unsubscribe(pushSub);
+    if (res) {
+      pushInfo.value = "";
+      subscribeText.value = "订阅";
+    }
+  } else {
+    // 去订阅
+    pushSub = await subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: base64ToUint8Array(VAPIDPublicKey),
+    });
+    if (pushSub) {
+      pushInfo.value = JSON.stringify(pushSub);
+      subscribeText.value = "取消订阅";
+    }
+  }
+};
+const showMsg = (i) => displayNotification(msgs[i]);
+
 window.addEventListener("beforeinstallprompt", async (e) => {
   // 阻止默认提示弹出
   e.preventDefault();
-    // 把事件存起来
+  // 把事件存起来
   savedPrompt = e;
   // 展示引导banner
   showInstallation.value = true;
@@ -200,10 +193,11 @@ const addAToHomeScreen = async () => {
     <section class="card">
       <h3>消息推送</h3>
       <p>消息推送信息对象：</p>
-      <p>{{pushInfo}}</p>
+      <p>{{ pushInfo }}</p>
       <div class="op-box">
-        <Button type="success" @click="getInfo">订阅消息</Button>
-        <Button type="success" @click="unsubscribeInfo" v-show="btnUnSub">取消订阅</Button>
+        <Button type="success" @click="subscribeOrUnsubscribe">{{
+          subscribeText
+        }}</Button>
       </div>
     </section>
     <div
@@ -231,6 +225,9 @@ const addAToHomeScreen = async () => {
   font-size: 16px;
   text-align: center;
   line-height: 40px;
+}
+.card {
+  padding-bottom: 20px;
 }
 </style>
 

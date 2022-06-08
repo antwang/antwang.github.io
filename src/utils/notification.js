@@ -1,13 +1,12 @@
 /*
  * @Author: ant
  * @Date: 2022-05-30 22:54:24
- * @LastEditTime: 2022-06-07 10:26:02
+ * @LastEditTime: 2022-06-08 22:58:21
  * @LastEditors: ant
  * @Description: 
  */
-import { base64ToUint8Array, uint8ArrayToBase64 } from './common'
+import { uint8ArrayToBase64 } from './common'
 // 服务器公钥，正式环境中，改为从服务端接口获取
-const VAPIDPublicKey = 'BPAlVBGt3YFzGBTOjrCbNVk5Q-2zkETpExGRO00CmyS3FqLI9LSGZHu4fJhIz0sObXwK88ArqZQdGpv51h3NbZg';
 /**
  * @description: 判断是否支持 Notification API
  * @return {Boolean} 
@@ -24,8 +23,17 @@ const isPushManagerSupported = () => {
 }
 
 /**
- * @description: 获取用户授权允许接受消息推送
- * @return {Promise} a promise resolved with permission or rejected with an error
+ * @description: 获取SW注册对象
+ * @return {SWRegistration} 
+ */
+const getSWRegistration = async () => {
+    let reg = await navigator.serviceWorker.ready
+    console.log(`获取当前active的SWRegistration`, reg)
+    return reg
+}
+/**
+ * @description: 向用户发起授权通知
+ * @return {Promise} 用户授权结果
  */
 export const askNotificationPermission = async () => {
     if (!isNotificationSupported()) {
@@ -50,55 +58,115 @@ export const askNotificationPermission = async () => {
         }
     }
 }
+
+/**
+ * @description: 向用户发起授权通知
+ * @return {String} 用户授权结果 granted denied default
+ */
+export const askPermission = async () => {
+    if (!isNotificationSupported()) {
+        console.log('当前浏览器不支持 Notification API .');
+        return null
+    }
+    try {
+        let permission = await Notification.requestPermission()
+        console.log(permission)
+        return permission
+    } catch (e) {
+        console.log(`获取授权失败`, JSON.stringify(e))
+        return null
+    }
+}
 /**
  * @description: 展示通知
  * @param {JSON} msg 一个消息体对象 {title: 'xxx', body: {icon,body,image,...}}
  * @return {*} void
  */
 export const displayNotification = async (msg) => {
-    let permission = await askNotificationPermission();
-    console.log(permission)
+    let permission = await askPermission();
     if (permission === 'granted') {
-        let registration = await navigator.serviceWorker.getRegistration();
-        console.log(registration)
-        registration.showNotification(msg.title, msg.body);
+        let reg = await getSWRegistration()
+        reg.showNotification(msg.title, msg.body);
     }
 }
 
 /**
- * @description: 订阅推送并将订阅结果发送给后端
- * @param {Object} registration 
- * @return {Promise}
+ * @description: 获取消息通知用户授权状态
+ * @return {String} 
  */
-export const subscribe = async (registration) => {
+export const getNotificationPermissionState = async () => {
+    if (navigator.permissions) {
+        try {
+            let res = await navigator.permissions.query({ name: 'notifications' })
+            return res.state
+        } catch (e) {
+            console.log(`权限状态获取失败`, JSON.stringify(e))
+            return null
+        }
+    }
+    // fallback Notification.permission 会阻塞主线程，频繁调用影响性能
+    return Notification.permission
+}
+/**
+ * @description: 获取pushScription对象
+ * @return {pushScription}
+ */
+export const getPushScription = async () => {
     if (!isPushManagerSupported()) {
-        return Promise.reject('系统不支持消息推送')
+        console.log('系统不支持PushManager API')
+        return
     }
     try {
-        let pushSubscription = await registration.pushManager.getSubscription();
-        console.log('通过getSubscription获取pushSubscription:')
-        console.log(pushSubscription)
-        if (pushSubscription) {
-            return Promise.resolve(pushSubscription)
-        } else {
-            try {
-                pushSubscription = await registration.pushManager.subscribe({
-                    userVisibleOnly: true,
-                    applicationServerKey: base64ToUint8Array(VAPIDPublicKey)
-                });
-                console.log('subscribe后获取pushSubscription:')
-                console.log(pushSubscription)
-                return Promise.resolve(pushSubscription)
-            } catch (e) {
-                return Promise.reject(e)
-            }
-        }
+        let reg = await getSWRegistration()
+        let subscription = await reg.pushManager.getSubscription()
+        return subscription
     } catch (e) {
-        console.log(e)
+        console.log(`获取pushScription失败`, e)
     }
 }
 
+/**
+ * @description: 订阅推送消息
+ * @param {Object} subscribeOptions 
+ * @return {pushSubscription} 
+ */
+export const subscribe = async (subscribeOptions = { userVisibleOnly: true }) => {
+    if (!isPushManagerSupported()) {
+        console.log('系统不支持 PushManager API .')
+        return null
+    }
+    try {
+        let permission = await askPermission();
+        if (permission === 'granted') {
+            let reg = await getSWRegistration()
+            let subscription = await reg.pushManager.subscribe(subscribeOptions)
+            console.log(`订阅成功`, JSON.stringify(subscription))
+            return subscription
+        }
+    } catch (e) {
+        console.log(`订阅失败`, JSON.stringify(e))
+        return null
+    }
+}
 
+/**
+ * @description: 取消订阅
+ * @return {void} 
+ */
+export const unsubscribe = async (pushSubScription) => {
+    if (!isPushManagerSupported()) {
+        console.log('系统不支持 PushManager API .')
+        return
+    }
+    try {
+        let res = await pushSubScription.unsubscribe()
+        console.log(`订阅已取消`, res)
+        return res
+    } catch (e) {
+        console.log(`订阅取消失败`, e)
+        return false
+    }
+}
 export const sendPushSubscription = (pushScription) => {
     return fetch('/api/push/subscribe', {
         method: 'POST',
