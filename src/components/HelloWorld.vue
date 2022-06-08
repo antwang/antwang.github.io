@@ -1,7 +1,7 @@
 <!--
  * @Author: ant
  * @Date: 2022-05-25 22:40:23
- * @LastEditTime: 2022-06-08 22:58:39
+ * @LastEditTime: 2022-06-08 23:40:24
  * @LastEditors: ant
  * @Description: 
 -->
@@ -97,6 +97,7 @@ onMounted(async () => {
 });
 
 const subscribeOrUnsubscribe = async () => {
+  console.log(`pushSub的值为：`,pushSub)
   if (pushSub) {
     // 取消订阅
     let res = await unsubscribe(pushSub);

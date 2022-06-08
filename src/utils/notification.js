@@ -1,7 +1,7 @@
 /*
  * @Author: ant
  * @Date: 2022-05-30 22:54:24
- * @LastEditTime: 2022-06-08 22:58:21
+ * @LastEditTime: 2022-06-08 23:39:04
  * @LastEditors: ant
  * @Description: 
  */
@@ -122,6 +122,7 @@ export const getPushScription = async () => {
         return subscription
     } catch (e) {
         console.log(`获取pushScription失败`, e)
+        return null
     }
 }
 
@@ -160,7 +161,7 @@ export const unsubscribe = async (pushSubScription) => {
     }
     try {
         let res = await pushSubScription.unsubscribe()
-        console.log(`订阅已取消`, res)
+        res?console.log(`订阅取消成功`): console.log(`订阅取消失败`)
         return res
     } catch (e) {
         console.log(`订阅取消失败`, e)
